@@ -9,10 +9,12 @@ using namespace std;
 int constN = 10;
 
 
-// совсем последовательно
+// последовательно
 vector<double> SummSequence(vector<double> a) {
     for (int i = 1; i < a.size(); i++)
+    {
         a[i] += a[i - 1];
+    }
     return a;
 }
 
@@ -25,7 +27,7 @@ vector<double> sumParalell(vector<double> sum, int p = 4) {
         d += 1;  
   
 
-#pragma omp parallel num_threads(p)
+#pragma omp parallel num_threads(p) // распараллеливает основной поток на несколько p = 4 
     {   
         /// здесь мы бежим с помощью нескольких потоков и находим частичные сумму для каждой части(их у нас всего p)
 #pragma omp for
@@ -71,23 +73,23 @@ vector<double> SummArray(vector<double> a, int N) {
 }
 
 
-// 
-// 
-// 
 double DiffParalellSequence(int N) {
     vector<double> a;
-    long double beg_time1, end_time1, beg_time2, end_time2;
+    long double beginTime1, endTime1, beginTime2, endTime2;
     for (int i = 0; i < N; i++)
         a.push_back(static_cast <double> (rand()) / (static_cast <double> (RAND_MAX / 100)));
-    beg_time2 = omp_get_wtime();
-    vector<double> sum2 = sumParalell(a, 4);
-    end_time2 = omp_get_wtime();
+    
+    // измеряем начала работы паралельного метода и конец
 
-    beg_time1 = omp_get_wtime();
+    beginTime2 = omp_get_wtime();
+    vector<double> sum2 = sumParalell(a, 4);
+    endTime2 = omp_get_wtime();
+
+    beginTime1 = omp_get_wtime();
     vector<double> sum1 = SummSequence(a);
-    end_time1 = omp_get_wtime();
-    //cout << "parallel = " << end_time2 - beg_time2 << " sequency" << end_time1 - beg_time1 << endl;
-    return ((end_time2 - beg_time2 -(end_time1 - beg_time1))); //разница времени работы паралелльного и последовательного
+    endTime1 = omp_get_wtime();
+    //cout << "parallel = " << endTime2 - beginTime2 << " sequency" << endTime1 - beginTime1 << endl;
+    return ((endTime2 - beginTime2 -(endTime1 - beginTime1))); //разница времени работы паралелльного и последовательного
 
 }
 
@@ -133,7 +135,7 @@ vector<double> OutTimesParallel() {
             vector<double> sum1 = sumParalell(a, p);
             end = omp_get_wtime();
             times.push_back(end - begin);
-        }
+        }//cекунду
     ofstream fout;
     fout.open("diagramma.txt");
     for (int i = 0; i < times.size(); i++)
@@ -151,19 +153,19 @@ int main()
     vector<double> times;
     int M;
     cout << "Изначальный массив:" << endl;
-    for (int i = 0; i < constN; i++)
+    for (int i = 0; i < 50; i++)
     {
         a.push_back(i );
         b.push_back(i);
         cout << a[i] << ' ';
     }
     cout << "Нахождение частичных сумм, паралельно :" << endl;
-    vector<double> sum = sumParalell(a, constN);
-    for (int i = 0; i < constN; i++)
+    vector<double> sum = sumParalell(a);
+    for (int i = 0; i < 50; i++)
         cout << sum[i] << ' ';
-    cout << "Нахождение частичных сумм" << endl;
+    cout << "Нахождение частичных сумм последовательно" << endl;
     vector<double> sum2 = SummSequence(b);
-    for (int i = 0; i < constN; i++)
+    for (int i = 0; i < 50; i++)
         cout << sum2[i] << ' ';
     cout << endl;
     outSizeArrayParallel();
